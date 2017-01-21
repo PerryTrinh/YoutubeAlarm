@@ -1,3 +1,3 @@
 # YoutubeAlarm
 
-Basic Python Program that opens random song in SongList.txt at given time
+Basic Python program that opens a random Youtube link once alarm rings
