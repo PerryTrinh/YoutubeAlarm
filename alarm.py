@@ -40,7 +40,6 @@ def main():
                 alarm_time = convertTime(user_input, index_last_number, False)
 
         current_time = time.strftime("%H:%M")
-        print("alarm time is" + alarm_time)
 
         while current_time != alarm_time:
             # Every 10 seconds, the current time is displayed
@@ -66,8 +65,6 @@ def is_numeric(t):
         return False
 
 def convertTime(input, index, PM):
-    print(input)
-    print(index)
     if PM == True:
         alarm_hours = int(input[0:2]) + 12
         return str(alarm_hours) + input[2:index + 1]
