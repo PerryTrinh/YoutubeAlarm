@@ -9,8 +9,8 @@ def main():
             play_list = reader.readlines()
 
         print("What time do you want to be notified?")
-        print("Ex. \n'>> 03:15 PM' \n'>> 08:40 AM'")
-        user_input = input(">> ")
+        print("Ex. \n'>>> 03:15 PM' \n'>>> 08:40 AM'")
+        user_input = input(">>> ")
         alarm_time = ""
 
         #Converts user_input to alarm_time format to compare with current_time later on
@@ -23,11 +23,11 @@ def main():
 
             #beginning to read "PM", need to add 12 hours to user_input
             elif substring == "P":
-                alarm_time = convertTime(user_input, index_last_number, True)
+                alarm_time = convert_time(user_input, index_last_number, True)
                 break
 
             elif substring == "A":
-                alarm_time = convertTime(user_input, index_last_number, False)
+                alarm_time = convert_time(user_input, index_last_number, False)
                 break
 
         current_time = time.strftime("%H:%M")
@@ -35,10 +35,10 @@ def main():
         #If user forgot AM/PM, assume time is same time period as right now
         if alarm_time == "":
             alarm_time = closest_time(user_input, current_time, index_last_number)
-
+            
         while current_time != alarm_time:
-            # Every 10 seconds, the current time is displayed
-            if int(time.strftime("%S")) % 10 == 0:
+            # Every 20 seconds, the current time is displayed
+            if int(time.strftime("%S")) % 20 == 0:
                 print("Current time: " + current_time)
 
             #Regardless of whether current time is displayed, current_time will be updated every second
@@ -59,26 +59,57 @@ def is_numeric(t):
     except ValueError:
         return False
 
-def convertTime(input, index, PM):
-    """Returns input in military time as a String"""
+def convert_time(input, index, PM):
+    """Returns input in military time as a String
+
+    >>> convert_time("2:12", 3, True)
+    "14:12"
+    >>> convert_time("12:47", 4, True)
+    "12:47"
+    >>> convert_time("12:47", 4, False)
+    "00:47"
+    """
+    if input[1:2] == ":":
+        input = "0" + input
+        index += 1
+
+    input_hours = int(input[0:2])
+
     if PM == True:
-        alarm_hours = int(input[0:2]) + 12
-        return str(alarm_hours) + input[2:index + 1]
+        if input_hours == 12:
+            return input[:index + 1]
+
+        alarm_hours = str(input_hours + 12)
+        return alarm_hours + input[2:index + 1]
     else:
+        if input_hours == 12:
+            input = "00" + input[2:index + 1]
         return input[:index + 1]
 
 def cut_zeros(time, time_period):
+    """Returns time (hours or minutes) as an int with no leading zeros
+
+    >>> cut_zeros("02:01", "Minutes")
+    1
+    >>> cut_zeros("04:10", "Hours")
+    4
+    """
     if time_period == "Minutes":
         return int(time[4:5]) if time[3] == "0" else int(time[3:])
     else:
         return int(time[1:2]) if time[0] == "0" else int(time[:2])
 
 def closest_time(input, current_time, index):
-    """Determines what time is closest to current_time and returns it as a String"""
-    """ex. if current_time is 14:40 PM, and user inputs 02:45, closest time is 14:45"""
+    """Determines what time is closest to current_time and returns it as a String
 
-    AM_time = convertTime(input, index, False)
-    PM_time = convertTime(input, index, True)
+    >>> closest_time("2:20", "12:24", 3)
+    "14:20"
+    >>> closest_time("12:10", "12:24", 4)
+    "00:10"
+    """
+
+    AM_time = convert_time(input, index, False)
+    PM_time = convert_time(input, index, True)
 
     #Corrects for single digit time stamps so they can be compared with later on
     AM_hours = cut_zeros(AM_time, "Hours")
@@ -102,6 +133,5 @@ def closest_time(input, current_time, index):
         return PM_time
     else:
         return AM_time
-
 
 main()
